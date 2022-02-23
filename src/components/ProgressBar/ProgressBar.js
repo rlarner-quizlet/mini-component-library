@@ -5,41 +5,61 @@ import styled from 'styled-components';
 import { COLORS } from '../../constants';
 import VisuallyHidden from '../VisuallyHidden';
 
-const MAX_WIDTH_PIXELS = 370;
-const HEIGHTS = {
-  'small': {
-    inner: '8px',
-    outer: '8px',
+const STYLES = {
+  small: {
+    height: 8,
+    padding: 0,
+    radius: 4,
   },
-  'medium': {
-    inner: '12px',
-    outer: '12px',
+  medium: {
+    height: 12,
+    padding: 0,
+    radius: 4,
+    
   },
-  'large': {
-    inner: '16px',
-    outer: '24px',
-  },
+  large: {
+    height: 16,
+    padding: 4,
+    radius: 8,
+  }
 }
-
+//#region CSS
 const Wrapper = styled.div`
   background-color: ${COLORS.transparentGray15};
   box-shadow: inset 0px 2px 4px rgba(128, 128, 128, 0.35);
-  border-radius: 8px;
-  height: ${p => HEIGHTS[p.size].outer || '24px'};
-  width: ${MAX_WIDTH_PIXELS}px;
-  `;
-
-const CurrentProgress = styled.div`
-  background-color: ${COLORS.primary};
-  border-radius: 4px 0px 0px 4px;
-  height: ${p => HEIGHTS[p.size].inner || '24px'};
-  padding: 4px;
-  width: ${(p => p.value / 100 * MAX_WIDTH_PIXELS)}px;
+  border-radius: var(--radius);
+  padding: var(--padding)
 `;
 
+const BarWrapper = styled.div`
+  border-radius: 4px;
+  overflow: hidden; /* trim corners when progress bar near full */
+`;
+
+const Bar = styled.div`
+  width: var(--width);
+  height: var(--height);
+  background-color: ${COLORS.primary};
+  border-radius: 4px 0 0 4px;
+`;
+//#endregion
+
 const ProgressBar = ({ value, size }) => {
-  return <Wrapper aria-valuenow={value} aria-valuemin="0" aria-valuemax={100} role="progressbar" size={size}>
-      <CurrentProgress size={size} value={value} />
+  const styles = STYLES[size];
+  if (!styles) throw new Error(`Unknown size passes to ProgressBar: ${size}`);
+  const { height, padding, radius } = styles;
+  console.log('height', height);
+  return <Wrapper 
+      aria-valuenow={value}
+      aria-valuemin="0"
+      aria-valuemax={100}
+      role="progressbar"
+      style={{'--padding': padding + 'px', '--radius': radius + 'px'}}
+    >
+    <VisuallyHidden>{value}</VisuallyHidden>
+    <BarWrapper>
+      <Bar style={{ '--width': value + '%', '--height': height + 'px' }} />
+    </BarWrapper>
     </Wrapper>;
 };
 
